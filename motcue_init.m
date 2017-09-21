@@ -7,16 +7,20 @@ clear
 close all
 
 if ispc
-%   mdir='D:\motion_cued\meg_data\';
-%   bdir='D:\motion_cued\behav_data\';
+  %   mdir='D:\motion_cued\meg_data\';
+  %   bdir='D:\motion_cued\behav_data\';
   mdir='I:\motion_cued\meg_data\'; % RDS
   bdir='I:\motion_cued\behav_data\'; % RDS
+  edir='I:\motion_cued\eyelink_data\'; % RDS
+  adir='I:\motion_cued\artfct\'; 
 else
   environ='bluebear';
   switch environ
     case 'bluebear'
-      mdir='/home/zumerj/motion_cued/meg_data/';
-      bdir='/home/zumerj/motion_cued/behav_data/';
+      mdir='/gpfs/bb/zumerj/nbu/motion_cued/meg_data/';
+      bdir='/gpfs/bb/zumerj/nbu/motion_cued/behav_data/';
+      edir='/gpfs/bb/zumerj/nbu/motion_cued/eyelink_data/'; 
+      adir='/gpfs/bb/zumerj/nbu/motion_cued/artfct/';
     otherwise
       [~,hostname]=system('hostname');
       if ~isempty(strfind(hostname,'les')) | ~isempty(strfind(hostname,'LES')) % either COLLES-151401 or LES-LINUX_FS3
@@ -41,20 +45,51 @@ end
 % volnum{3}='10925013';
 
 if ispc
+  warning off
   rmpath(genpath('D:\matlab\spm8\external\fieldtrip\'))
   rmpath(genpath('D:\fieldtrip_svn\'))
-  %   addpath('D:\fieldtrip_svn\')
+  warning on
   addpath('D:\fieldtrip_git\')
-  addpath('D:\motion_cued\mfiles\')
+  addpath('I:\motion_cued\mfiles\')
 else
-  rmpath(genpath('/mnt/hgfs/D/matlab/spm8/external/fieldtrip/'))
-  rmpath(genpath('/mnt/hgfs/D/fieldtrip_svn/'))
-  %   addpath('/mnt/hgfs/D/fieldtrip_svn/')
-  addpath('/mnt/hgfs/D/fieldtrip_git/')
-  addpath('/mnt/hgfs/D/motion_cued/mfiles/')
+  environ='bluebear';
+  switch environ
+    case 'bluebear'
+    otherwise
+      rmpath(genpath('/mnt/hgfs/D/matlab/spm8/external/fieldtrip/'))
+      %   rmpath(genpath('/mnt/hgfs/D/fieldtrip_svn/'))
+      %   addpath('/mnt/hgfs/D/fieldtrip_svn/')
+      addpath('/mnt/hgfs/D/fieldtrip_git/')
+      addpath('/mnt/hgfs/D/motion_cued/mfiles/')
+  end
 end
+
 which ft_defaults.m
 ft_defaults;
+
+% the number here is the MEG run e.g. *_04.ds
+avcuedata{2}=[4 5];
+avcuedata{3}=[4:10];
+avcuedata{4}=[4:10];
+avcuedata{5}=[4:10];
+avcuedata{6}=[3:8];
+avcuedata{7}=[4:10];
+avcuedata{8}=[4:9];
+avcuedata{9}=[4:10];
+avcuedata{10}=[5:10];
+avcuedata{11}=[4:10];
+avcuedata{12}=[4:9];
+avcuedata{13}=[4:10];
+avcuedata{14}=[4:10];
+avcuedata{15}=[4:10];
+avcuedata{16}=[4:10];
+avcuedata{17}=[4:6 8:10];
+avcuedata{18}=[4:10];
+avcuedata{19}=[4:9];
+avcuedata{20}=[4:9];
+avcuedata{21}=[4:10];
+avcuedata{22}=[4:9];
+avcuedata{23}=[4:10];
 
 
 
