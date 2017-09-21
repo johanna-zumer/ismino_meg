@@ -1,6 +1,21 @@
-function event=jz_read_eyelink_events(filename)
+function [event,data]=jz_read_eyelink_events(filename)
+% .duration is in samples
 
 hdr=ft_read_header(filename);
+if isfield(hdr.orig,'dat')
+  data=hdr.orig.dat;
+else
+  error('no time sample data in this .asc file')
+end
+
+
+% not sure why this is needed on .asc files in eyelink_data folder but not
+% behav_data folder!
+tmp=hdr.TimeStampPerSample;
+hdr.TimeStampPerSample=1000/round(hdr.Fs);
+if hdr.TimeStampPerSample - tmp > 1e-06
+  error('hack broken');
+end
 
 eind=0;
 if isfield(hdr.orig,'efix')
