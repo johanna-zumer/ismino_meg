@@ -7,55 +7,6 @@ subuse=[3:23];
 
 plotflag=1;
 
-% the number here is the MEG run e.g. *_04.ds
-avcuedata{2}=[4 5];
-avcuedata{3}=[4:10];
-avcuedata{4}=[4:10];
-avcuedata{5}=[4:10];
-avcuedata{6}=[3:8];
-avcuedata{7}=[4:10];
-avcuedata{8}=[4:9];
-avcuedata{9}=[4:10];
-avcuedata{10}=[5:10];
-avcuedata{11}=[4:10];
-avcuedata{12}=[4:9];
-avcuedata{13}=[4:10];
-avcuedata{14}=[4:10];
-avcuedata{15}=[4:10];
-avcuedata{16}=[4:10];
-avcuedata{17}=[4:6 8:10];
-avcuedata{18}=[4:10];
-avcuedata{19}=[4:9];
-avcuedata{20}=[4:9];
-avcuedata{21}=[4:10];
-avcuedata{22}=[4:9];
-avcuedata{23}=[4:10];
-
-% Which *.asc file to use
-% comment states which MEG run it goes with
-avcue_asc{2} =[3:4]; % 4 5
-avcue_asc{3} =[3:8]; % 5:10; % missing for 4
-avcue_asc{4} =[4:10]; % 4:10
-avcue_asc{5} =[4:9]; % [4:5 7:10] % missing for 6
-avcue_asc{6} =[4:8]; % [3:7] % missing for 8
-avcue_asc{7} =[3:9]; % 4:10
-avcue_asc{8} =[4:8]; % [4:6 8:9] % missing for 7
-avcue_asc{9} =[3:7]; % [4:7 9] % missing for 8 and 10
-avcue_asc{10}=[4:8]; % [4:6 8:9] % missing for 7
-avcue_asc{11}=[4:10]; % 4:10
-avcue_asc{12}=[3:6]; % [4 6 7 8] % missing for 5 and 9
-avcue_asc{13}=[4:9]; % [4:5 7:10] % missing for 6
-avcue_asc{14}=[3:7]; % [4 5 7:9] % missing for 6 and 10
-avcue_asc{15}=[4:8]; % [6:10] % missing for 4 and 5
-avcue_asc{16}=[4:8]; % [4:5 7:8 10] % missing for 6 and 9
-avcue_asc{17}=[3:4 6:7]; % [4 5 8 10] % missing for 6 and 9
-avcue_asc{18}=[4:6 8:10]; % [4:6  8:10] % missing for 7
-avcue_asc{19}=[4:9]; % [4:9]
-avcue_asc{20}=[4:8]; % [4 6:9] % missing for 5
-avcue_asc{21}=[1:6]; % [4:6 8:10] % missing for 7
-avcue_asc{22}=[4:8]; % [4 6:9] % missing for 5
-avcue_asc{23}=[4:8]; % [4 6:8 10] % missing for 5 and 9
-
 sub_locue=[nan 21 21 21 21  21 22 21 21 22  22 22 22 22 21  21 21 21 21 22  22 22 21];
 sub_hicue=[nan 22 22 22 22  22 21 22 22 21  21 21 21 21 22  22 22 22 22 21  21 21 22];
 
@@ -65,13 +16,38 @@ sub_hicue=[nan 22 22 22 22  22 21 22 22 21  21 21 21 21 22  22 22 22 22 21  21 2
 for ii=subuse % not parfor (too much RAM)
   clearvars -except ii sub* avcue* *dir *flag
   
-  if 0
+  if 0 % artifact removal
     if ~exist(eogartifact,'file')
-      motcue_eeg_eog;
+      motcue_eog;
     end
     if ~exist(muscleartifact,'file')
-      motcue_eeg_muscle;
+      motcue_muscle;
     end
+    
+    % jump
+    cfg                    = [];
+    cfg.trl = trl;
+    cfg.datafile   = 'ArtifactMEG.ds';
+    cfg.headerfile = 'ArtifactMEG.ds';
+    cfg.continuous = 'yes';
+    
+    % channel selection, cutoff and padding
+    cfg.artfctdef.zvalue.channel    = 'MEG';
+    cfg.artfctdef.zvalue.cutoff     = 20;
+    cfg.artfctdef.zvalue.trlpadding = 0;
+    cfg.artfctdef.zvalue.artpadding = 0;
+    cfg.artfctdef.zvalue.fltpadding = 0;
+    
+    % algorithmic parameters
+    cfg.artfctdef.zvalue.cumulative    = 'yes';
+    cfg.artfctdef.zvalue.medianfilter  = 'yes';
+    cfg.artfctdef.zvalue.medianfiltord = 9;
+    cfg.artfctdef.zvalue.absdiff       = 'yes';
+    
+    % make the process interactive
+    cfg.artfctdef.zvalue.interactive = 'yes';
+    
+    [cfg, artifact_jump] = ft_artifact_zvalue(cfg);
   end
   
   % datanames=dir([volnum{ii} '*']);
@@ -113,6 +89,11 @@ for ii=subuse % not parfor (too much RAM)
     % cfg.refchannel='all'; % used linked-mastoids for sleep staging but use average reference for ERPs and TFRs and source localisation
     raw_hpf=ft_preprocessing(cfg);
     
+    % get responses
+    event_meg = ft_read_event(cfg.dataset);
+    event_resp = event_meg(strcmp('UPPT001', {event_meg.type}));
+    event_stim = event_meg(strcmp('UPPT002', {event_meg.type}));
+    
     cfg=[];
     cfg.dataset=[sub{ii} '/' datanames(avcuedata{ii}(ff)).name];
     cfg.channel={'UADC*' };
@@ -137,90 +118,6 @@ for ii=subuse % not parfor (too much RAM)
     % cfg.hpfreq=1;
     % megchan_hpf=ft_preprocessing(cfg,megchan);
     %   end
-    
-    
-    %% Eye link data (need to figure this out still)
-    if 0
-      filenames_eye=dir([bdir sub{ii} '*asc']);
-      
-      %   for ff=1:length(avcue_asc{ii})
-      
-      % if this fails, see *edf in eyelink_data folder
-      
-      % filename_eye=[bdir 'm03_1424.asc'];
-      cfg=[];
-      % cfg.dataset=filename_eye;
-      cfg.dataset=[bdir filenames_eye(avcue_asc{ii}(ff)).name];
-      data_eye=ft_preprocessing(cfg);
-      
-      event_eye=jz_read_eyelink_events(filename_eye);
-      
-      cfg=[];
-      cfg.viewmode='vertical';
-      cfg.preproc.demean='yes';
-      cfg.event=event_eye;
-      cfg.channel={'2' '3' '4'};
-      ft_databrowser(cfg,data_eye);
-      
-      cfg=[];
-      cfg.dataset=filename_eye;
-      cfg.trialdef.eventtype='msg';
-      cfg.trialdef.eventvalue={21 22};
-      cfg.trialdef.prestim=1;
-      cfg.trialdef.poststim=2;
-      cfg.event=event_eye;
-      % cfg.trialfun='ft_trialfun_eyelink_appmot';
-      cfg=ft_definetrial(cfg);
-      data_eye2=ft_preprocessing(cfg);
-      
-      cfg=[];
-      cfg.resamplefs=megeye_cue{1}.fsample;
-      data_eye_resamp=ft_resampledata(cfg,data_eye2);
-      
-      megeye_cue_all=ft_appenddata([],megeye_cue{1},data_eye_resamp);
-      %   end
-      % figure
-      % plot([event_eye.sample]./data_eye.hdr.Fs, [event_eye.value], '.')
-      % title('Eye position during fixation')
-      % xlabel('time (s)');
-      % ylabel('X position in pixels');
-      %
-      % event_eye = ft_read_event('m03_1343.asc');
-      cfg=[];
-      cfg.channel={'MZ'};
-      % cfg.channel={'MZ' 'UADC*'};
-      megchanZ=ft_selectdata(cfg,megeye_cue_all);
-      cfg.channel={'MRF14' 'MLF14'};
-      megchanF=ft_selectdata(cfg,megeye_cue_all);
-      
-      cfg=[];
-      cfg.channel={'UADC*'};
-      eyechan=ft_selectdata(cfg,megeye_cue_all);
-      
-      cfg=[];
-      cfg.channel={'2' '3' '4'};
-      data_eye_resamp234=ft_selectdata(cfg,data_eye_resamp);
-      
-      cfg=[];
-      cfg.parameter='trial';
-      cfg.operation='multiply';
-      cfg.scalar=10^15;
-      megchanZs=ft_math(cfg,megchanZ);
-      megchanFs=ft_math(cfg,megchanF);
-      cfg.scalar=10^3;
-      eyechans=ft_math(cfg,eyechan);
-      
-      if plotflag
-        cfg=[];
-        cfg.viewmode='vertical';
-        cfg.preproc.demean='yes';
-        ft_databrowser(cfg,ft_appenddata([],megchanFs,eyechans,data_eye_resamp234));
-        ft_databrowser(cfg,megchanZ);
-        ft_databrowser(cfg,eyechan);
-      end
-      
-    end
-    
     
     %%
     
@@ -321,68 +218,68 @@ for ii=subuse % not parfor (too much RAM)
   end
   
   if 0
-  cfg=[];
-  cfg.lpfilter='yes';
-  cfg.lpfreq=40;
-  cfg.demean='yes';
-  cfg.baselinewindow=[-0.9 -0.4];
-  cfg.baselinewindow=[-0.9 0.9];
-  %   raw_cue_all_lpf=ft_preprocessing(cfg,megeye_cue_all);
-  raw_cue_planar_lpf=ft_preprocessing(cfg,megeye_cue_planar_all);
-  
-  cfg=[];
-  cfg.trials=megeye_cue_all.trialinfo==sub_locue(ii);
-  %   raw_locue_all=ft_selectdata(cfg,megeye_cue_all);
-  %   raw_locue_all_lpf=ft_selectdata(cfg,raw_cue_all_lpf);
-  raw_locue_all=ft_selectdata(cfg,megeye_cue_planar_all);
-  raw_locue_all_lpf=ft_selectdata(cfg,raw_cue_planar_lpf);
-  cfg=[];
-  cfg.trials=megeye_cue_all.trialinfo==sub_hicue(ii);
-  %   raw_hicue_all=ft_selectdata(cfg,megeye_cue_all);
-  %   raw_hicue_all_lpf=ft_selectdata(cfg,raw_cue_all_lpf);
-  raw_hicue_all=ft_selectdata(cfg,megeye_cue_planar_all);
-  raw_hicue_all_lpf=ft_selectdata(cfg,raw_cue_planar_lpf);
-  
-  cfg=[];
-  tlock_locue=ft_timelockanalysis(cfg,raw_locue_all_lpf);
-  tlock_hicue=ft_timelockanalysis(cfg,raw_hicue_all_lpf);
-  
-  
-  if plotflag
     cfg=[];
-    cfg.channel={'MLO*' 'MRO*' 'MZO*'};
-    cfg.avgoverchan='yes';
-    tlock_locue_occ=ft_selectdata(cfg,tlock_locue);
-    tlock_hicue_occ=ft_selectdata(cfg,tlock_hicue);
-    figure;plot(tlock_locue.time,[tlock_locue_occ.avg; tlock_hicue_occ.avg])
+    cfg.lpfilter='yes';
+    cfg.lpfreq=40;
+    cfg.demean='yes';
+    cfg.baselinewindow=[-0.9 -0.4];
+    cfg.baselinewindow=[-0.9 0.9];
+    %   raw_cue_all_lpf=ft_preprocessing(cfg,megeye_cue_all);
+    raw_cue_planar_lpf=ft_preprocessing(cfg,megeye_cue_planar_all);
     
     cfg=[];
-    cfg.channel={'MLT*' 'MRT*' };
-    cfg.avgoverchan='yes';
-    tlock_locue_tem=ft_selectdata(cfg,tlock_locue);
-    tlock_hicue_tem=ft_selectdata(cfg,tlock_hicue);
-    figure;plot(tlock_locue.time,[tlock_locue_tem.avg; tlock_hicue_tem.avg])
+    cfg.trials=megeye_cue_all.trialinfo==sub_locue(ii);
+    %   raw_locue_all=ft_selectdata(cfg,megeye_cue_all);
+    %   raw_locue_all_lpf=ft_selectdata(cfg,raw_cue_all_lpf);
+    raw_locue_all=ft_selectdata(cfg,megeye_cue_planar_all);
+    raw_locue_all_lpf=ft_selectdata(cfg,raw_cue_planar_lpf);
+    cfg=[];
+    cfg.trials=megeye_cue_all.trialinfo==sub_hicue(ii);
+    %   raw_hicue_all=ft_selectdata(cfg,megeye_cue_all);
+    %   raw_hicue_all_lpf=ft_selectdata(cfg,raw_cue_all_lpf);
+    raw_hicue_all=ft_selectdata(cfg,megeye_cue_planar_all);
+    raw_hicue_all_lpf=ft_selectdata(cfg,raw_cue_planar_lpf);
     
-    %     figure;
-    %     cfg=[];
-    %     cfg.layout='CTF275.lay';
-    %     cfg.interactive='yes';
-    %     ft_multiplotER(cfg,tlock_locue,tlock_hicue);
-  else
-    %
-    % figure('Visible','off');
-    % plot(tlock_locue.time,[mean(tlock_locue.avg(56:64,:),1); mean(tlock_hicue.avg(56:64,:),1)])
-    %
-    % figure;
-    % cfg=[];
-    % cfg.layout='elec1010.lay';
-    % cfg.interactive='yes';
-    % ft_multiplotER(cfg,tlock_locue,tlock_hicue);
-  end
-  
-  clear *lpf
-  
-  % e09 the alpha is perfectly out of phase between cue types!
+    cfg=[];
+    tlock_locue=ft_timelockanalysis(cfg,raw_locue_all_lpf);
+    tlock_hicue=ft_timelockanalysis(cfg,raw_hicue_all_lpf);
+    
+    
+    if plotflag
+      cfg=[];
+      cfg.channel={'MLO*' 'MRO*' 'MZO*'};
+      cfg.avgoverchan='yes';
+      tlock_locue_occ=ft_selectdata(cfg,tlock_locue);
+      tlock_hicue_occ=ft_selectdata(cfg,tlock_hicue);
+      figure;plot(tlock_locue.time,[tlock_locue_occ.avg; tlock_hicue_occ.avg])
+      
+      cfg=[];
+      cfg.channel={'MLT*' 'MRT*' };
+      cfg.avgoverchan='yes';
+      tlock_locue_tem=ft_selectdata(cfg,tlock_locue);
+      tlock_hicue_tem=ft_selectdata(cfg,tlock_hicue);
+      figure;plot(tlock_locue.time,[tlock_locue_tem.avg; tlock_hicue_tem.avg])
+      
+      %     figure;
+      %     cfg=[];
+      %     cfg.layout='CTF275.lay';
+      %     cfg.interactive='yes';
+      %     ft_multiplotER(cfg,tlock_locue,tlock_hicue);
+    else
+      %
+      % figure('Visible','off');
+      % plot(tlock_locue.time,[mean(tlock_locue.avg(56:64,:),1); mean(tlock_hicue.avg(56:64,:),1)])
+      %
+      % figure;
+      % cfg=[];
+      % cfg.layout='elec1010.lay';
+      % cfg.interactive='yes';
+      % ft_multiplotER(cfg,tlock_locue,tlock_hicue);
+    end
+    
+    clear *lpf
+    
+    % e09 the alpha is perfectly out of phase between cue types!
   end
   
 end % ii
