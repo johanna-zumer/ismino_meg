@@ -3,37 +3,48 @@
 motcue_init
 cd(mdir)
 plotflag=0;
+doreject=1;
+loadEL=1;
 
 % Which *.asc file to use
 % comment states which MEG run it goes with
-avcue_asc{2} =[3:4];      dataasc{2}=[1 1]; % 4 5
-avcue_asc{3} =[3:8];      dataasc{3}=[0 1 1 1 1 1 1];% 5:10; % missing for 4
-avcue_asc{4} =[4:10];     dataasc{4}=[1 1 1 1 1 1 1 ]; % 4:10
-avcue_asc{5} =[4:9];      dataasc{5}=[1 1 0 1 1 1 1 ]; % [4:5 7:10] % missing for 6
-avcue_asc{6} =[4:8];      dataasc{6}=[1 1 1 1 1 0 ]; % [3:7] % missing for 8
-avcue_asc{7} =[3:9];      dataasc{7}=[1 1 1 1 1 1 1]; % 4:10
-avcue_asc{8} =[4:8];      dataasc{8}=[1 1 1 0 1 1 ]; % [4:6 8:9] % missing for 7
-avcue_asc{9} =[3:7];      dataasc{9}=[1 1 1 1 0 1 0 ]; % [4:7 9] % missing for 8 and 10
-avcue_asc{10}=[4:8];      dataasc{10}=[1 1 1 0 1 1 ]; % [4:6 8:9] % missing for 7
+avcue_asc{2} =[6 8];      dataasc{2}=[1 1]; % 4 5
+avcue_asc{3} =[4:10];     dataasc{3}=[1 1 1 1 1 1 1];% 4:10
+avcue_asc{4} =[5:11];     dataasc{4}=[1 1 1 1 1 1 1 ]; % 4:10
+avcue_asc{5} =[4:10];     dataasc{5}=[1 1 1 1 1 1 1 ]; % 4:10
+avcue_asc{6} =[4:9];      dataasc{6}=[1 1 1 1 1 1 ]; % [3:8] 
+avcue_asc{7} =[4:10];     dataasc{7}=[1 1 1 1 1 1 1]; % 4:10
+avcue_asc{8} =[4:9];      dataasc{8}=[1 1 1 1 1 1 ]; % [4:9]
+avcue_asc{9} =[5:11];     dataasc{9}=[1 1 1 1 1 1 1 ]; % [410]
+avcue_asc{10}=[6 8:9 11:13];dataasc{10}=[1 1 1 1 1 1 ]; % [5:10]
 avcue_asc{11}=[4:10];     dataasc{11}=[1 1 1 1 1 1 1 ]; % 4:10
-avcue_asc{12}=[3:6];      dataasc{12}=[1 0 1 1 1 0 ]; % [4 6 7 8] % missing for 5 and 9
-avcue_asc{13}=[4:9];      dataasc{13}=[1 1 0 1 1 1 1 ]; % [4:5 7:10] % missing for 6
-avcue_asc{14}=[3:7];      dataasc{14}=[1 1 0 1 1 1 0 ]; % [4 5 7:9] % missing for 6 and 10
-avcue_asc{15}=[4:8];      dataasc{15}=[0 0 1 1 1 1 1 ]; % [6:10] % missing for 4 and 5
-avcue_asc{16}=[4:8];      dataasc{16}=[1 1 0 1 1 0 1 ]; % [4:5 7:8 10] % missing for 6 and 9
-avcue_asc{17}=[3:4 6:7];  dataasc{17}=[1 1 0 1 0 1 ]; % [4 5 8 10] % missing for 6 and 9
-avcue_asc{18}=[4:6 8:10]; dataasc{18}=[1 1 1 0 1 1 1 ]; % [4:6  8:10] % missing for 7
-avcue_asc{19}=[4:9];      dataasc{19}=[1 1 1 1 1 1 ];% [4:9]
-avcue_asc{20}=[4:8];      dataasc{20}=[1 0 1 1 1 1 ]; % [4 6:9] % missing for 5
-avcue_asc{21}=[1:6];      dataasc{21}=[1 1 1 0 1 1 1 ]; % [4:6 8:10] % missing for 7
-avcue_asc{22}=[4:8];      dataasc{22}=[1 0 1 1 1 1 ]; % [4 6:9] % missing for 5
-avcue_asc{23}=[4:8];      dataasc{23}=[1 0 1 1 1 0 1 ]; % [4 6:8 10] % missing for 5 and 9
+avcue_asc{12}=[5 7:11];   dataasc{12}=[1 1 1 1 1 1 ]; % [4:9]
+avcue_asc{13}=[4 6:11];   dataasc{13}=[1 1 1 1 1 1 1 ]; % [4:10]
+avcue_asc{14}=[4:10];     dataasc{14}=[1 1 1 1 1 1 1 ]; % [4:10]
+avcue_asc{15}=[4:10];     dataasc{15}=[1 1 1 1 1 1 1 ]; % [4:10]
+avcue_asc{16}=[4:10];     dataasc{16}=[1 1 1 1 1 1 1 ]; % [4:10] 
+avcue_asc{17}=[4:6 8:10]; dataasc{17}=[1 1 1 1 1 1 ]; % [4:6 8:10] 
+avcue_asc{18}=[4:7 9:11]; dataasc{18}=[1 1 1 1 1 1 1 ]; % [4:10] 
+avcue_asc{19}=[5:10];     dataasc{19}=[1 1 1 1 1 1 ];% [4:9]
+avcue_asc{20}=[4 6:10];   dataasc{20}=[1 1 1 1 1 1 ]; % [4:9]
+avcue_asc{21}=[4:10];     dataasc{21}=[1 1 1 1 1 1 1 ]; % [4:10]
+avcue_asc{22}=[4:9];      dataasc{22}=[1 1 1 1 1 1 ]; % [4:9]
+avcue_asc{23}=[4:10];     dataasc{23}=[1 1 1 1 1 1 1 ]; % [4:10]
+
+% from setup_screen.m , we know that
+%         case 'meg'
+%           setup.res = [1280 1024]; % worked with stimulus presentation and eyelink 13/4/16
+%           setup.refresh = 60;
+%           setup.mon.dist = 54; % confirmed
+%           setup.mon.width = 40; % confirmed
 
 subuse=2:23;
+
+%%
 for ii=subuse
   
   datanames=dir([mdir sub{ii} '/*.ds']);
-  filenames_eye=dir([bdir sub{ii} '*asc']);
+  filenames_eye=dir([edir sub{ii} '*asc']);
   
   clear fileeye_use
   fileeye_use(find(dataasc{ii}))=filenames_eye(avcue_asc{ii});
@@ -46,9 +57,8 @@ for ii=subuse
     
     cfg=[];
     cfg.dataset=[mdir sub{ii} '/' datanames(avcuedata{ii}(ff)).name];
-    cfg.trialfun='ft_trialfun_general';
-    %     cfg.trialfun='ft_trialfun_motcue';
-    % cfg.trialdef.eventtype  = '?';
+%     cfg.trialfun='ft_trialfun_general';
+    cfg.trialfun='ft_trialfun_general_motcue';
     cfg.trialdef.eventtype  = 'UPPT002';
     cfg.trialdef.eventvalue = {21 22}; % This means cue value
     cfg.trialdef.prestim = 1.1;
@@ -69,17 +79,13 @@ for ii=subuse
     
     cfg=[];
     cfg.dataset=[mdir sub{ii} '/' datanames(avcuedata{ii}(ff)).name];
-    cfg.channel={'UADC*' };
-    eyechan=ft_preprocessing(cfg);
+    cfg.trl=cfgtr.trl;
+    eye_adc_shift=motcue_loadshift_adc(cfg);
     
     cfg=[];
     cfg.trl=cfgtr.trl;
     raw_cue=ft_redefinetrial(cfg,raw_hpf);
-    eye_cue_orig=ft_redefinetrial(cfg,eyechan);
     
-    cfg=[];
-    cfg.offset=-11; % 10 ms delay for EyeLink data to reach ADC channel on MEG
-    eye_adc_shift=ft_redefinetrial(cfg, eye_cue_orig);
     
     cfg=[];
     cfg.latency=[-1 2]; % these numbers should match EL file loading below
@@ -117,10 +123,24 @@ for ii=subuse
     
     artfct_blinkz=cfg.artfctdef.zvalue;
     
-    %     cfg=[];
-    %     cfg.artfctdef.reject='nan';
-    %     cfg.artfctdef.blink.artifact=artfct_blinkz.artifact;
-    %     eyeadc_blinkrm = ft_rejectartifact(cfg, eye_adc_shift);
+    if doreject % run here to get output of how many trials kept for given zvalue threshold
+      % first reject if eyeblink during main part of trial
+      cfg=[];
+      cfg.artfctdef.reject='complete'; % 'nan'
+      cfg.artfctdef.crittoilim = [0 2];
+      cfg.artfctdef.blink.artifact=artfct_blinkz.artifact;
+      eyeadc_blinkrm = ft_rejectartifact(cfg, megeye_cue);
+      
+      num_nonblinktrials{ii}(ff,:)=[length(megeye_cue.trial) length(eyeadc_blinkrm.trial)];
+      
+      % do this instead elsewhere, when load data
+      %       % then replace blinks remaining with nan
+      %       cfg=[];
+      %       cfg.artfctdef.reject='nan';
+      %       cfg.artfctdef.blink.artifact=artfct_blinkz.artifact;
+      %       eyeadc_blinkrm_nan = ft_rejectartifact(cfg, eyeadc_blinkrm);
+    end
+    
     %
     % if plotflag
     %     cfg=[];
@@ -130,60 +150,24 @@ for ii=subuse
     %     ft_databrowser(cfg,eyeadc_blinkrm);
     % end
     
-    if 0
-      % Use values from Eyelink to convert voltage back to pixels.
-      % The minimum/maximum voltage range and the maximum/minimum range of the data are defined in EyeLink configuration file FINAL.INI. The physical dimensions of your screen (screenright, screenleft, screenbottom, screentop) are defined in PHYSICAL.INI, or your presentation settings.
-      minvoltage = nan;
-      maxvoltage = nan;
-      minrange = nan;
-      maxrange = nan;
-      screenright = nan;
-      screenleft = nan;
-      screentop = nan;
-      screenbottom = nan;
-      Xgaze=[];
-      Ygaze=[];
-      for trln=1:size(megeye_cue.trial,2)
-        
-        voltageH=megeye_cue.trial{trln}(find(strcmp(megeye_cue.label,'UADC002')),:);
-        voltageV=megeye_cue.trial{trln}(find(strcmp(megeye_cue.label,'UADC003')),:);
-        
-        R_h = (voltageH-minvoltage)./(maxvoltage-minvoltage);%voltage range proportion
-        S_h = R_h.*(maxrange-minrange)+minrange;%proportion of screen width or height
-        
-        R_v = (voltageV-minvoltage)./(maxvoltage-minvoltage);
-        S_v = R_v.*(maxrange-minrange)+minrange;
-        
-        S_h = ((voltageH-minvoltage)./(maxvoltage-minvoltage)).*(maxrange-minrange)+minrange;
-        S_v = ((voltageV-minvoltage)./(maxvoltage-minvoltage)).*(maxrange-minrange)+minrange;
-        
-        Xgaze(trln,:) = S_h.*(screenright-screenleft+1)+screenleft;
-        Ygaze(trln,:) = S_v.*(screenbottom-screentop+1)+screentop;
-        
-      end
-      % Next, we know that X pixels means Y visual degrees.
-      pix_per_deg = nan; % FIXME
-      sacc_deg_thresh = 2;
-      sacc_pix_thresh = pix_per_deg*sacc_deg_thresh;
-    end
-    
     % eyelink data doesn't exist for all runs
     hasEL=0;
-    if ~isempty( intersect(avcuedata{ii}(ff), avcuedata{ii}(find(dataasc{ii}))))
+    if loadEL && ~isempty( intersect(avcuedata{ii}(ff), avcuedata{ii}(find(dataasc{ii}))))
       hasEL=1;
       
       cfg=[];
       cfg.dataset=[edir fileeye_use(ff).name];
       data_eye=ft_preprocessing(cfg);
       event_eye=jz_read_eyelink_events(cfg.dataset);
-      % figure
-      % plot([event_eye.sample]./data_eye.hdr.Fs, [event_eye.value], '.')
-      % title('Eye position during fixation')
-      % xlabel('time (s)');
-      % ylabel('X position in pixels');
-      %
+
       
       if 0
+        figure
+        plot([event_eye.sample]./data_eye.hdr.Fs, [event_eye.value], '.')
+        title('Eye position during fixation')
+        xlabel('time (s)');
+        ylabel('X position in pixels');
+        %
         cfg=[];
         cfg.viewmode='vertical';
         cfg.preproc.demean='yes';
@@ -258,6 +242,42 @@ for ii=subuse
       megeye_cue_all=ft_appenddata(cfg,megeye_cue,data_eye_resamp);
       clear megeye_cue
       
+        cfg=[];
+        cfg.viewmode='vertical';
+        cfg.preproc.demean='yes';
+        cfg.event=event_eye;
+        cfg.channel={'2' '3' '4'};
+        ft_databrowser(cfg,megeye_cue_all);
+
+    % Call FT artifact rejection for EOG
+    cfg=[];
+    cfg.trl=cfgtr.trl;
+    cfg.continuous = 'no';
+    cfg.artfctdef.zvalue.channel = '3'; %vertical direct from EL
+    cfg.artfctdef.zvalue.cutoff = 1;
+    cfg.artfctdef.zvalue.trlpadding =0;
+    cfg.artfctdef.zvalue.fltpadding =0;
+    cfg.artfctdef.zvalue.artpadding =0.2;
+    cfg.artfctdef.zvalue.rectify       = 'yes';
+    if plotflag
+      cfg.artfctdef.zvalue.interactive = 'yes';
+    end
+    [cfg, artifact] = ft_artifact_zvalue(cfg, megeye_cue_all);
+    
+    artfct_blinkz_EL=cfg.artfctdef.zvalue;
+
+        cfg=[];
+        cfg.viewmode='vertical';
+        cfg.preproc.demean='yes';
+        cfg.event=event_eye;
+        cfg.channel={'2' '3' '4'};
+        cfg.artfctdef.artfct_blinkz_EL.artifact=artfct_blinkz_EL.artifact;
+        cfg.artfctdef.artfct_blinkz.artifact=artfct_blinkz.artifact;
+        ft_databrowser(cfg,megeye_cue_all);
+        
+        % for some reason, artfct_blinkz better.  artfct_blinkz_EL picks up
+        % extra ones where not really a blink.
+
     else
       
       megeye_cue_all=megeye_cue;
@@ -265,26 +285,105 @@ for ii=subuse
     end
     
     
+    % Use values from Eyelink to convert voltage back to pixels.
     
+    % The physical dimensions of your screen (screenright, screenleft, screenbottom, screentop) are defined in PHYSICAL.INI, or your presentation settings.
+    screenright = 1023;
+    screenleft = 0;
+    screentop = 0;
+    screenbottom = 767;  % according to my .asc files
+%     screenbottom = 819; % according to EL computer in 2017
+    % The minimum/maximum voltage range and the maximum/minimum range of the data are defined in EyeLink configuration file FINAL.INI.
+    minvoltage = nan;
+    maxvoltage = nan;
+    minrange = nan;
+    maxrange = nan;
     
-    cfg=[];
-%     cfg.channel={'MZ'};
-%     megchanZ=ft_selectdata(cfg,megeye_cue_all);
-    cfg.channel={'MRF14' 'MLF14'};
-    megchanF=ft_selectdata(cfg,megeye_cue_all);
-    cfg.channel={'UADC*'};
-    eyechan=ft_selectdata(cfg,megeye_cue_all);
+    Xgaze=[];
+    Ygaze=[];
     
-    cfg=[];
-    cfg.parameter='trial';
-    cfg.operation='multiply';
-    cfg.scalar=10^15;
-%     megchanZs=ft_math(cfg,megchanZ);
-    megchanFs=ft_math(cfg,megchanF);
-    cfg.scalar=10^2;
-    eyechans=ft_math(cfg,eyechan);
+    if isnan(minvoltage) & hasEL % hack because we don't have this real info
+      % find a trial without blinks
+      switch ii
+        case 2
+          switch ff
+            case 1
+              trialnoblink=17;
+            case 2
+              trialnoblink=14;
+          end
+        case 3
+          switch ff
+            case 2
+              trialnoblink=12;
+            case 3
+              trialnoblink=27;
+            case 4
+              trialnoblink=23;
+            case 5
+              trialnoblink=23;
+            case 6
+              trialnoblink=28;
+            case 7
+              trialnoblink=29;
+            otherwise
+              disp([ii ff])
+              keyboard
+          end
+        otherwise
+          disp([ii ff])
+          keyboard
+      end
+      pfh=polyfit(megeye_cue_all.trial{trialnoblink}(3,:),megeye_cue_all.trial{trialnoblink}(7,:)/1024,1);
+      pfv=polyfit(megeye_cue_all.trial{trialnoblink}(4,:),megeye_cue_all.trial{trialnoblink}(8,:)/768,1);
+      if max(abs(pfh-pfv))>.002
+        error('not ideal fit')
+      end
+      slope=mean([pfv(1) pfh(1)]);
+      icept=mean([pfv(2) pfh(2)]);
+      % FIXME: make channel indices general
+    elseif isnan(minvoltage)
+      slope=0.1412;
+      icept=0.4993;
+    else
+      %         slope= % some function of minvoltage,maxvoltage,minrange,maxrange
+      %         icept= % some function of minvoltage,maxvoltage,minrange,maxrange
+    end
+    for tt=1:size(megeye_cue_all.trial,2)
+      megeye_cue_all.trial{tt}(11,:)=1280*(slope*megeye_cue_all.trial{tt}(3,:)+icept);
+      megeye_cue_all.trial{tt}(12,:)=1024*(slope*megeye_cue_all.trial{tt}(4,:)+icept);
+    end
+    megeye_cue_all.label{11}='HGaze';
+    megeye_cue_all.label{12}='VGaze';
+    
+    % Next, we know that X pixels means Y visual degrees.
+    % cm/deg = .95 (approximately. it varies with increasing degrees) tand(1)*54cm = 0.943cm
+    % pix/cm = 1280/40 = 32;
+    pix_per_deg = 30.4; % 32 * 0.95
+    sacc_deg_thresh = 2; % FIXME! what value to use?
+    sacc_pix_thresh = pix_per_deg*sacc_deg_thresh;
+    
+    % But fixation seems different every run!?
+    
     
     if plotflag
+      cfg=[];
+      %     cfg.channel={'MZ'};
+      %     megchanZ=ft_selectdata(cfg,megeye_cue_all);
+      cfg.channel={'MRF14' 'MLF14'};
+      megchanF=ft_selectdata(cfg,megeye_cue_all);
+      cfg.channel={'UADC*'};
+      eyechan=ft_selectdata(cfg,megeye_cue_all);
+      
+      cfg=[];
+      cfg.parameter='trial';
+      cfg.operation='multiply';
+      cfg.scalar=10^15;
+      %     megchanZs=ft_math(cfg,megchanZ);
+      megchanFs=ft_math(cfg,megchanF);
+      cfg.scalar=10^2;
+      eyechans=ft_math(cfg,eyechan);
+      
       cfg=[];
       cfg.viewmode='vertical';
       cfg.preproc.demean='yes';
@@ -306,4 +405,11 @@ for ii=subuse
     
   end % ff
 end % ii
+
+
+num_nbt_allruns=nan(23,2);
+for ii=subuse
+  num_nbt_allruns(ii,:)=sum(num_nonblinktrials{ii});
+end
+save([adir 'num_nbt_allruns.mat'],'num_nbt_allruns','num_nonblinktrials');
 

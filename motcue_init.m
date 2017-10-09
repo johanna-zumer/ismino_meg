@@ -2,7 +2,7 @@
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
-clear
+% clear
 % clearvars -except *dir
 close all
 
@@ -44,6 +44,11 @@ end
 % volnum{2}='09376057';
 % volnum{3}='10925013';
 
+disp('path to remove:')
+pathd=which('ft_defaults')
+if ~isempty(pathd)
+  rmpath(fileparts(pathd));
+end
 if ispc
   warning off
   rmpath(genpath('D:\matlab\spm8\external\fieldtrip\'))
@@ -55,6 +60,8 @@ else
   environ='bluebear';
   switch environ
     case 'bluebear'
+      addpath('/gpfs/bb/zumerj/nbu/fieldtrip_git/')
+      addpath('/gpfs/bb/zumerj/nbu/motion_cued/mfiles/')
     otherwise
       rmpath(genpath('/mnt/hgfs/D/matlab/spm8/external/fieldtrip/'))
       %   rmpath(genpath('/mnt/hgfs/D/fieldtrip_svn/'))
