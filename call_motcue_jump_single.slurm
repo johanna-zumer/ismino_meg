@@ -4,7 +4,7 @@
 #SBATCH --job-name mc_ca
 #SBATCH --mem 16G # 4GB
 #SBATcH --mem-per-cpu 16G
-#SBATCH --time 4:00:00
+#SBATCH --time 1:00:00
 #SBATCH --mail-type=NONE  #ALL
 #SBATCH --get-user-env
 #SBATCH --export=NONE

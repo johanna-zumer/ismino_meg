@@ -74,8 +74,12 @@ for ff=1:length(avcuedata{ii}) % parfor on cluster
   %     clear eyechan eye_cue_orig
   
   cfg=[];
+  cfg.gradient='G3BR';
+  raw_cue3=ft_denoise_synthetic(cfg, raw_cue);
+
+  cfg=[];
   cfg.appenddim='chan';
-  megeye_cue=ft_appenddata(cfg,raw_cue,eye_adc_shift);
+  megeye_cue=ft_appenddata(cfg,raw_cue3,eye_adc_shift);
   clear raw_cue eye_adc_shift
   
   %% Artifact rejection

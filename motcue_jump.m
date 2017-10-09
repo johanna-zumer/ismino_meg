@@ -27,8 +27,8 @@ for ff=1:length(avcuedata{ii})
   cfg.continuous = 'yes';
   
   % channel selection, cutoff and padding
-  cfg.artfctdef.zvalue.channel    = 'MEG';
-  cfg.artfctdef.zvalue.cutoff     = 20;
+  cfg.artfctdef.zvalue.channel    = {'MEG' 'MEGREF'};
+  cfg.artfctdef.zvalue.cutoff     = 30;
   cfg.artfctdef.zvalue.trlpadding = 0;
   cfg.artfctdef.zvalue.artpadding = 0;
   cfg.artfctdef.zvalue.fltpadding = 0;
@@ -42,7 +42,7 @@ for ff=1:length(avcuedata{ii})
   % make the process interactive
   cfg.artfctdef.zvalue.interactive = 'no';
   
-  [cfg, artifact_jump] = ft_artifact_zvalue(cfg);
+  cfg = ft_artifact_zvalue(cfg);
   artfct_jumpz=cfg.artfctdef.zvalue;
   save([adir sub{ii} '_jump_artfct_runff' num2str(ff) '.mat'],'artfct_jumpz')
 end

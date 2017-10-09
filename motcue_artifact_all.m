@@ -1,5 +1,5 @@
 function data_out=motcue_artifact_all(data,ii,ff,sub,adir,visflag)
-% motcue_artifact_all
+% function data_out=motcue_artifact_all(data,ii,ff,sub,adir,visflag)
 
 % Blink
 % reject completely where a blink occurs during main part of trial

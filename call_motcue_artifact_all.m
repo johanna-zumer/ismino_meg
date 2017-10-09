@@ -31,7 +31,7 @@ for ff=1:length(avcuedata{ii}) % parfor on cluster
   cfg.hpfilter='yes';
   cfg.hpfiltord=3;
   cfg.hpfreq=0.5;  
-  cfg.channel={'MEG' };
+  cfg.channel={'MEG' 'MEGREF'};
   raw_hpf=ft_preprocessing(cfg);
   
   cfg=[];
@@ -42,12 +42,16 @@ for ff=1:length(avcuedata{ii}) % parfor on cluster
   cfg.latency=[-1.4 2.4]; % these numbers should match EL file loading below
   raw_cue=ft_selectdata(cfg,raw_cue);
   
+  cfg=[];
+  cfg.gradient='G3BR';
+  raw_cue3=ft_denoise_synthetic(cfg, raw_cue);
+  
   clear raw_hpf
   %     clear eyechan eye_cue_orig
     
   %% Artifact rejection
   visflag=1;
-  data_out=motcue_artifact_all(raw_cue,ii,ff,sub,adir,visflag);
+  data_out=motcue_artifact_all(raw_cue3,ii,ff,sub,adir,visflag);
 end
 
 end
