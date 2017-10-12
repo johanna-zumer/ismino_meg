@@ -12,7 +12,7 @@ avcue_asc{2} =[6 8];      dataasc{2}=[1 1]; % 4 5
 avcue_asc{3} =[4:10];     dataasc{3}=[1 1 1 1 1 1 1];% 4:10
 avcue_asc{4} =[5:11];     dataasc{4}=[1 1 1 1 1 1 1 ]; % 4:10
 avcue_asc{5} =[4:10];     dataasc{5}=[1 1 1 1 1 1 1 ]; % 4:10
-avcue_asc{6} =[4:9];      dataasc{6}=[1 1 1 1 1 1 ]; % [3:8] 
+avcue_asc{6} =[4:9];      dataasc{6}=[1 1 1 1 1 1 ]; % [3:8]
 avcue_asc{7} =[4:10];     dataasc{7}=[1 1 1 1 1 1 1]; % 4:10
 avcue_asc{8} =[4:9];      dataasc{8}=[1 1 1 1 1 1 ]; % [4:9]
 avcue_asc{9} =[5:11];     dataasc{9}=[1 1 1 1 1 1 1 ]; % [410]
@@ -22,9 +22,9 @@ avcue_asc{12}=[5 7:11];   dataasc{12}=[1 1 1 1 1 1 ]; % [4:9]
 avcue_asc{13}=[4 6:11];   dataasc{13}=[1 1 1 1 1 1 1 ]; % [4:10]
 avcue_asc{14}=[4:10];     dataasc{14}=[1 1 1 1 1 1 1 ]; % [4:10]
 avcue_asc{15}=[4:10];     dataasc{15}=[1 1 1 1 1 1 1 ]; % [4:10]
-avcue_asc{16}=[4:10];     dataasc{16}=[1 1 1 1 1 1 1 ]; % [4:10] 
-avcue_asc{17}=[4:6 8:10]; dataasc{17}=[1 1 1 1 1 1 ]; % [4:6 8:10] 
-avcue_asc{18}=[4:7 9:11]; dataasc{18}=[1 1 1 1 1 1 1 ]; % [4:10] 
+avcue_asc{16}=[4:10];     dataasc{16}=[1 1 1 1 1 1 1 ]; % [4:10]
+avcue_asc{17}=[4:6 8:10]; dataasc{17}=[1 1 1 1 1 1 ]; % [4:6 8:10]
+avcue_asc{18}=[4:7 9:11]; dataasc{18}=[1 1 1 1 1 1 1 ]; % [4:10]
 avcue_asc{19}=[5:10];     dataasc{19}=[1 1 1 1 1 1 ];% [4:9]
 avcue_asc{20}=[4 6:10];   dataasc{20}=[1 1 1 1 1 1 ]; % [4:9]
 avcue_asc{21}=[4:10];     dataasc{21}=[1 1 1 1 1 1 1 ]; % [4:10]
@@ -38,10 +38,13 @@ avcue_asc{23}=[4:10];     dataasc{23}=[1 1 1 1 1 1 1 ]; % [4:10]
 %           setup.mon.dist = 54; % confirmed
 %           setup.mon.width = 40; % confirmed
 
+zvalue_cutoff=[nan 1.5 1.5 1.2 1.5   1.5 1.5 1.5 1.5 1.5   1.5 1.5 1.5 1.5 1.5   1.5 1.5 1.5 1.5 1.5   1.5 1.5 1.5];
+
 subuse=2:23;
 
 %%
-for ii=subuse
+% for ii=subuse
+for ii=10:23
   
   datanames=dir([mdir sub{ii} '/*.ds']);
   filenames_eye=dir([edir sub{ii} '*asc']);
@@ -57,12 +60,12 @@ for ii=subuse
     
     cfg=[];
     cfg.dataset=[mdir sub{ii} '/' datanames(avcuedata{ii}(ff)).name];
-%     cfg.trialfun='ft_trialfun_general';
+    %     cfg.trialfun='ft_trialfun_general';
     cfg.trialfun='ft_trialfun_general_motcue';
     cfg.trialdef.eventtype  = 'UPPT002';
     cfg.trialdef.eventvalue = {21 22}; % This means cue value
-    cfg.trialdef.prestim = 1.1;
-    cfg.trialdef.poststim = 2.1;
+    cfg.trialdef.prestim = 1.5;
+    cfg.trialdef.poststim = 2.5;
     cfgtr=ft_definetrial(cfg);
     
     cfg=[];
@@ -111,10 +114,11 @@ for ii=subuse
     cfg.trl=cfgtr.trl;
     cfg.continuous = 'no';
     cfg.artfctdef.zvalue.channel = 'UADC002'; %vertical
-    cfg.artfctdef.zvalue.cutoff = 1;
+    cfg.artfctdef.zvalue.cutoff = zvalue_cutoff(ii);
+    %     cfg.artfctdef.zvalue.cutoff = 1.3;
     cfg.artfctdef.zvalue.trlpadding =0;
     cfg.artfctdef.zvalue.fltpadding =0;
-    cfg.artfctdef.zvalue.artpadding =0.2;
+    cfg.artfctdef.zvalue.artpadding =0.25;
     cfg.artfctdef.zvalue.rectify       = 'yes';
     if plotflag
       cfg.artfctdef.zvalue.interactive = 'yes';
@@ -159,7 +163,7 @@ for ii=subuse
       cfg.dataset=[edir fileeye_use(ff).name];
       data_eye=ft_preprocessing(cfg);
       event_eye=jz_read_eyelink_events(cfg.dataset);
-
+      
       
       if 0
         figure
@@ -181,57 +185,74 @@ for ii=subuse
       cfg.dataset=[edir fileeye_use(ff).name];
       cfg.trialdef.eventtype='msg';
       cfg.trialdef.eventvalue={21 22};
-      cfg.trialdef.prestim=1;
-      cfg.trialdef.poststim=2;
+      cfg.trialdef.prestim=1.5;
+      cfg.trialdef.poststim=2.5;
       cfg.event=event_eye;
       % cfg.trialfun='ft_trialfun_eyelink_appmot';
       cfg=ft_definetrial(cfg);
       data_eye2=ft_preprocessing(cfg);
       
+      if ii==7 && ff==7 % for some reason, EL recorded one more trial after rest and MEG didn't
+        cfg=[];
+        cfg.trials=1:60;
+        data_eye2=ft_selectdata(cfg,data_eye2);
+      end
+      
+      if plotflag
+        cfg=[];
+        cfg.viewmode='vertical';
+        cfg.preproc.demean='yes';
+        cfg.event=event_eye;
+        cfg.channel={'2' '3' '4'};
+        ft_databrowser(cfg,data_eye2);
+      end
+      
       cfg=[];
       cfg.time=megeye_cue.time;
       data_eye_resamp=ft_resampledata(cfg,data_eye2);
       
-      % what to do with event markers?
-      % What to reject:
-      % 1) blink if end is -0.5s or later
-      % 2) saccade
-      msgevents=find(strcmp({event_eye.type},'msg'));
-      starttrial=msgevents(find([event_eye(msgevents).value]==20));
-      zerosample=dsearchn(data_eye2.time{1}',0); % true for all trials, number of samples to add to start sample
-      eblinksample=dsearchn(data_eye2.time{1}',-.5); % true for all trials, number of samples to add to start sample
-      esaccsample =dsearchn(data_eye2.time{1}',.5); % true for all trials, number of samples to add to start sample
-      blinkfound=nan(length(data_eye2.trial),1);
-      artfct_blink=nan(length(data_eye2.trial),1);
-      artfct_sacc1=nan(length(data_eye2.trial),1);
-      artfct_sacc2=nan(length(data_eye2.trial),1);
-      numsacc=zeros(length(data_eye2.trial),1);
-      sacc_thresh=7; %  <-- FIXME what value ??
-      for ee=1:length(starttrial)
-        ind=starttrial(ee)+1;
-        while event_eye(ind).value~=20 && event_eye(ind).value~=71 && event_eye(ind).value~=72
-          switch event_eye(ind).type
-            case 'ssacc'
-              numsacc(ee)=numsacc(ee)+1;
-              %               event_eye(ind).timestamp-event_eye(starttrial(ee)).timestamp;
-              samp_esacc=event_eye(ind).sample+event_eye(ind).duration; % when sacc ends
-              if [samp_esacc > data_eye2.sampleinfo(ee,1)+esaccsample ]
-                artfct_sacc1(ee)=1;
-              end
-              if [event_eye(ind).value > sacc_thresh]
-                artfct_sacc2(ee)=1;
-              end
-            case 'sblink'
-              blinkfound(ee)=1;
-              samp_eblink=event_eye(ind).sample+event_eye(ind).duration; % when blink ends
-              if samp_eblink > data_eye2.sampleinfo(ee,1)+eblinksample % if blink ends too late
-                artfct_blink(ee)=1;
-              end
-            otherwise
-          end
-          ind=ind+1;
-        end %  while
-      end % ee
+      if 0
+        % what to do with event markers?
+        % What to reject:
+        % 1) blink if end is -0.5s or later
+        % 2) saccade
+        msgevents=find(strcmp({event_eye.type},'msg'));
+        starttrial=msgevents(find([event_eye(msgevents).value]==20));
+        zerosample=dsearchn(data_eye2.time{1}',0); % true for all trials, number of samples to add to start sample
+        eblinksample=dsearchn(data_eye2.time{1}',-.5); % true for all trials, number of samples to add to start sample
+        esaccsample =dsearchn(data_eye2.time{1}',.5); % true for all trials, number of samples to add to start sample
+        blinkfound=nan(length(data_eye2.trial),1);
+        artfct_blink=nan(length(data_eye2.trial),1);
+        artfct_sacc1=nan(length(data_eye2.trial),1);
+        artfct_sacc2=nan(length(data_eye2.trial),1);
+        numsacc=zeros(length(data_eye2.trial),1);
+        sacc_thresh=7; %  <-- FIXME what value ??
+        for ee=1:length(starttrial)
+          ind=starttrial(ee)+1;
+          while event_eye(ind).value~=20 && event_eye(ind).value~=71 && event_eye(ind).value~=72
+            switch event_eye(ind).type
+              case 'ssacc'
+                numsacc(ee)=numsacc(ee)+1;
+                %               event_eye(ind).timestamp-event_eye(starttrial(ee)).timestamp;
+                samp_esacc=event_eye(ind).sample+event_eye(ind).duration; % when sacc ends
+                if [samp_esacc > data_eye2.sampleinfo(ee,1)+esaccsample ]
+                  artfct_sacc1(ee)=1;
+                end
+                if [event_eye(ind).value > sacc_thresh]
+                  artfct_sacc2(ee)=1;
+                end
+              case 'sblink'
+                blinkfound(ee)=1;
+                samp_eblink=event_eye(ind).sample+event_eye(ind).duration; % when blink ends
+                if samp_eblink > data_eye2.sampleinfo(ee,1)+eblinksample % if blink ends too late
+                  artfct_blink(ee)=1;
+                end
+              otherwise
+            end
+            ind=ind+1;
+          end %  while
+        end % ee
+      end % 0
       
       cfg=[];
       cfg.channel={'2' '3' '4'};
@@ -242,42 +263,39 @@ for ii=subuse
       megeye_cue_all=ft_appenddata(cfg,megeye_cue,data_eye_resamp);
       clear megeye_cue
       
+      % Call FT artifact rejection for EOG
+      cfg=[];
+      cfg.trl=cfgtr.trl;
+      cfg.continuous = 'no';
+      cfg.artfctdef.zvalue.channel = '3'; %vertical direct from EL
+      cfg.artfctdef.zvalue.cutoff = zvalue_cutoff(ii);
+      %       cfg.artfctdef.zvalue.cutoff = 1.2;
+      cfg.artfctdef.zvalue.trlpadding =0;
+      cfg.artfctdef.zvalue.fltpadding =0;
+      cfg.artfctdef.zvalue.artpadding =0.25;
+      cfg.artfctdef.zvalue.rectify       = 'yes';
+      if plotflag
+        cfg.artfctdef.zvalue.interactive = 'yes';
+      end
+      [cfg, artifact] = ft_artifact_zvalue(cfg, megeye_cue_all);
+      
+      artfct_blinkz_EL=cfg.artfctdef.zvalue;
+      
+      if plotflag
+        disp('compare blink detection; view databrowser')
+        ii,ff
         cfg=[];
         cfg.viewmode='vertical';
         cfg.preproc.demean='yes';
-        cfg.event=event_eye;
-        cfg.channel={'2' '3' '4'};
-        ft_databrowser(cfg,megeye_cue_all);
-
-    % Call FT artifact rejection for EOG
-    cfg=[];
-    cfg.trl=cfgtr.trl;
-    cfg.continuous = 'no';
-    cfg.artfctdef.zvalue.channel = '3'; %vertical direct from EL
-    cfg.artfctdef.zvalue.cutoff = 1;
-    cfg.artfctdef.zvalue.trlpadding =0;
-    cfg.artfctdef.zvalue.fltpadding =0;
-    cfg.artfctdef.zvalue.artpadding =0.2;
-    cfg.artfctdef.zvalue.rectify       = 'yes';
-    if plotflag
-      cfg.artfctdef.zvalue.interactive = 'yes';
-    end
-    [cfg, artifact] = ft_artifact_zvalue(cfg, megeye_cue_all);
-    
-    artfct_blinkz_EL=cfg.artfctdef.zvalue;
-
-        cfg=[];
-        cfg.viewmode='vertical';
-        cfg.preproc.demean='yes';
-        cfg.event=event_eye;
+        %       cfg.event=event_eye;  % not use here, not resampled
         cfg.channel={'2' '3' '4'};
         cfg.artfctdef.artfct_blinkz_EL.artifact=artfct_blinkz_EL.artifact;
         cfg.artfctdef.artfct_blinkz.artifact=artfct_blinkz.artifact;
-        ft_databrowser(cfg,megeye_cue_all);
-        
-        % for some reason, artfct_blinkz better.  artfct_blinkz_EL picks up
-        % extra ones where not really a blink.
-
+        cfg = ft_databrowser(cfg,megeye_cue_all);
+        keyboard
+      end
+      
+      
     else
       
       megeye_cue_all=megeye_cue;
@@ -292,7 +310,7 @@ for ii=subuse
     screenleft = 0;
     screentop = 0;
     screenbottom = 767;  % according to my .asc files
-%     screenbottom = 819; % according to EL computer in 2017
+    %     screenbottom = 819; % according to EL computer in 2017
     % The minimum/maximum voltage range and the maximum/minimum range of the data are defined in EyeLink configuration file FINAL.INI.
     minvoltage = nan;
     maxvoltage = nan;
@@ -302,59 +320,63 @@ for ii=subuse
     Xgaze=[];
     Ygaze=[];
     
-    if isnan(minvoltage) & hasEL % hack because we don't have this real info
-      % find a trial without blinks
-      switch ii
-        case 2
-          switch ff
-            case 1
-              trialnoblink=17;
-            case 2
-              trialnoblink=14;
-          end
-        case 3
-          switch ff
-            case 2
-              trialnoblink=12;
-            case 3
-              trialnoblink=27;
-            case 4
-              trialnoblink=23;
-            case 5
-              trialnoblink=23;
-            case 6
-              trialnoblink=28;
-            case 7
-              trialnoblink=29;
-            otherwise
-              disp([ii ff])
-              keyboard
-          end
-        otherwise
-          disp([ii ff])
-          keyboard
+    if 0
+      if isnan(minvoltage) & hasEL % hack because we don't have this real info
+        % find a trial without blinks
+        switch ii
+          case 2
+            switch ff
+              case 1
+                trialnoblink=17;
+              case 2
+                trialnoblink=14;
+            end
+          case 3
+            switch ff
+              case 1
+                trialnoblink=10;
+              case 2
+                trialnoblink=12;
+              case 3
+                trialnoblink=27;
+              case 4
+                trialnoblink=23;
+              case 5
+                trialnoblink=23;
+              case 6
+                trialnoblink=28;
+              case 7
+                trialnoblink=29;
+              otherwise
+                disp([ii ff])
+                keyboard
+            end
+          otherwise
+            disp([ii ff])
+            %           keyboard
+        end
+        pfh=polyfit(megeye_cue_all.trial{trialnoblink}(3,:),megeye_cue_all.trial{trialnoblink}(7,:)/1024,1);
+        pfv=polyfit(megeye_cue_all.trial{trialnoblink}(4,:),megeye_cue_all.trial{trialnoblink}(8,:)/768,1);
+        if max(abs(pfh-pfv))>.002
+          error('not ideal fit')
+        end
+        slope=mean([pfv(1) pfh(1)]);
+        icept=mean([pfv(2) pfh(2)]);
+        % FIXME: make channel indices general
+      elseif isnan(minvoltage)
+        slope=0.1412;
+        icept=0.4993;
+      else
+        %         slope= % some function of minvoltage,maxvoltage,minrange,maxrange
+        %         icept= % some function of minvoltage,maxvoltage,minrange,maxrange
       end
-      pfh=polyfit(megeye_cue_all.trial{trialnoblink}(3,:),megeye_cue_all.trial{trialnoblink}(7,:)/1024,1);
-      pfv=polyfit(megeye_cue_all.trial{trialnoblink}(4,:),megeye_cue_all.trial{trialnoblink}(8,:)/768,1);
-      if max(abs(pfh-pfv))>.002
-        error('not ideal fit')
+      for tt=1:size(megeye_cue_all.trial,2)
+        megeye_cue_all.trial{tt}(11,:)=1280*(slope*megeye_cue_all.trial{tt}(3,:)+icept);
+        megeye_cue_all.trial{tt}(12,:)=1024*(slope*megeye_cue_all.trial{tt}(4,:)+icept);
       end
-      slope=mean([pfv(1) pfh(1)]);
-      icept=mean([pfv(2) pfh(2)]);
-      % FIXME: make channel indices general
-    elseif isnan(minvoltage)
-      slope=0.1412;
-      icept=0.4993;
-    else
-      %         slope= % some function of minvoltage,maxvoltage,minrange,maxrange
-      %         icept= % some function of minvoltage,maxvoltage,minrange,maxrange
-    end
-    for tt=1:size(megeye_cue_all.trial,2)
-      megeye_cue_all.trial{tt}(11,:)=1280*(slope*megeye_cue_all.trial{tt}(3,:)+icept);
-      megeye_cue_all.trial{tt}(12,:)=1024*(slope*megeye_cue_all.trial{tt}(4,:)+icept);
-    end
-    megeye_cue_all.label{11}='HGaze';
-    megeye_cue_all.label{12}='VGaze';
+      megeye_cue_all.label{11}='HGaze';
+      megeye_cue_all.label{12}='VGaze';
+    end % if 0
     
     % Next, we know that X pixels means Y visual degrees.
     % cm/deg = .95 (approximately. it varies with increasing degrees) tand(1)*54cm = 0.943cm
@@ -398,8 +420,18 @@ for ii=subuse
       %       ft_databrowser(cfg,eyechan);
     end
     
+    switch ii
+      case {4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23}
+        artfct_blink_save=artfct_blinkz;  % ADC channel
+      case {2 3}
+        artfct_blink_save=artfct_blinkz_EL; % direct EL channel
+      otherwise
+        error('select which artfct to use')
+    end
+    
     % save artifact info for this block
-    save([adir sub{ii} '_eye_artfct_runff' num2str(ff) '.mat'],'artfct_blinkz')
+    delete([adir sub{ii} '_eye_artfct_runff' num2str(ff) '.mat'])
+    save([adir sub{ii} '_eye_artfct_runff' num2str(ff) '.mat'],'artfct_blink_save')
     
     clear meg* eye*
     
@@ -411,5 +443,6 @@ num_nbt_allruns=nan(23,2);
 for ii=subuse
   num_nbt_allruns(ii,:)=sum(num_nonblinktrials{ii});
 end
+delete([adir 'num_nbt_allruns.mat']);
 save([adir 'num_nbt_allruns.mat'],'num_nbt_allruns','num_nonblinktrials');
 
