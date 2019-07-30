@@ -13,6 +13,8 @@ if ispc
   bdir='I:\motion_cued\behav_data\'; % RDS
   edir='I:\motion_cued\eyelink_data\'; % RDS
   adir='I:\motion_cued\artfct\'; 
+  sdir='I:\motion_cued\struct_notts_MRI\'; 
+  pdir='I:\motion_cued\polhemus_AVmotion\';
 else
   environ='bluebear';
   switch environ
@@ -44,8 +46,13 @@ end
 % volnum{2}='09376057';
 % volnum{3}='10925013';
 
-disp('path to remove:')
+disp('FT path to remove:')
 pathd=which('ft_defaults')
+if ~isempty(pathd)
+  rmpath(fileparts(pathd));
+end
+disp('SPM path to remove:')
+pathd=which('spm')
 if ~isempty(pathd)
   rmpath(fileparts(pathd));
 end
@@ -97,6 +104,25 @@ avcuedata{20}=[4:9];
 avcuedata{21}=[4:10];
 avcuedata{22}=[4:9];
 avcuedata{23}=[4:10];
+
+% structural MRI
+% for ii=2:23,
+%   if ~exist([sdir sub{ii}],'dir')
+%     mkdir([sdir sub{ii}]);
+%   end
+% end
+
+% % Polhemus
+% for ii=2:23,
+%   if ~exist([pdir sub{ii}],'dir')
+%     mkdir([pdir sub{ii}]);
+%   end
+% end
+
+% mriname{3}=[sdir '10925\10925.mri'];
+% mriname{4}=[sdir '09376\09376.mri'];
+% mriname{5}=[sdir '10760\10760.mri'];
+% mriname{6}=[sdir ''];
 
 
 
