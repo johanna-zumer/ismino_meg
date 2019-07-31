@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --ntasks 7
+#SBATCH --ntasks 1
 #SBATCH --qos bbdefault
 #SBATCH --job-name mc_ca
 #SBATCH --mem 16G # 4GB
@@ -16,7 +16,7 @@
 unset SLURM_EXPORT_ENV
 set -e
 module purge; module load bluebear
-module load apps/matlab/r2016a
+module load apps/matlab/r2017a
 
 matlab -nodisplay -r "motcue_cuealpha($SUBID)"
 

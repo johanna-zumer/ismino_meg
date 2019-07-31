@@ -16,7 +16,7 @@
 unset SLURM_EXPORT_ENV
 set -e
 module purge; module load bluebear
-module load apps/matlab/r2016a
+module load apps/matlab/r2017a
 
 matlab -nodisplay -r "motcue_jump($SUBID)"
 
