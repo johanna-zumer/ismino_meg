@@ -6,7 +6,6 @@ plotflag=0;
 
 % for participant with cueord=[1 2] , trigger 21 means 400Hz; locue
 % for participant with cueord=[2 1] , trigger 21 means 1600Hz; locue
-
 sub_locue=[nan 21 21 21 21  21 22 21 21 22  22 22 22 22 21  21 21 21 21 22  22 22 21];
 sub_hicue=[nan 22 22 22 22  22 21 22 22 21  21 21 21 21 22  22 22 22 22 21  21 21 22];
 
@@ -21,72 +20,26 @@ ii=subind;
 datanames=dir([sub{ii} '/*.ds']);
 
 for ff=1:length(avcuedata{ii}) % parfor on cluster
-  
-  cfg=[];
-  cfg.dataset=[sub{ii} '/' datanames(avcuedata{ii}(ff)).name];
-%   cfg.trialfun='ft_trialfun_general';
-  cfg.trialfun='ft_trialfun_general_motcue';
-  cfg.trialdef.eventtype  = 'UPPT002';
-  cfg.trialdef.eventvalue = {21 22}; % This means cue value
-  cfg.trialdef.prestim = 1.1;
-  cfg.trialdef.poststim = 2.1;
-  cfgtr=ft_definetrial(cfg);
-  
-  cfg=[];
-  cfg.dataset=[sub{ii} '/' datanames(avcuedata{ii}(ff)).name];
-  cfg.demean='yes';
-  cfg.bsfilter='yes';
-  cfg.bsfreq=[49 51; 99 101; 149 151];
-  cfg.hpfilter='yes';
-  cfg.hpfiltord=3;
-  cfg.hpfreq=0.2;  % Could do higher for awake data but not want higher for sleep.
-  cfg.channel={'MEG' };
-  raw_hpf=ft_preprocessing(cfg);
+
+  jrval='run'; % 'run' if make new params, or 'load' old results
+  brval='load'; % 'run' if make new params, or 'load' old results
+  brdo= 0; % =0 if don't actually remove blinks, =1 yes replace blink with nan
+  visflag=1;
+  motcue_load_preproc % output is megeye_br for each ii,ff
   
   % get responses
   if 0
-    event_meg = ft_read_event(cfg.dataset);
+    dataset=[sub{ii} '/' datanames(avcuedata{ii}(ff)).name];
+    event_meg = ft_read_event(dataset);
     event_resp = event_meg(strcmp('UPPT001', {event_meg.type}));
     event_stim = event_meg(strcmp('UPPT002', {event_meg.type}));
   end
   
-  cfg=[];
-  cfg.dataset=[mdir sub{ii} '/' datanames(avcuedata{ii}(ff)).name];
-  cfg.trl=cfgtr.trl;
-  eye_adc_shift=motcue_loadshift_adc(cfg);
   
-  cfg=[];
-  cfg.trl=cfgtr.trl;
-  raw_cue=ft_redefinetrial(cfg,raw_hpf);
-  
-  cfg=[];
-  cfg.latency=[-1 2]; % these numbers should match EL file loading below
-  raw_cue=ft_selectdata(cfg,raw_cue);
-  eye_adc_shift=ft_selectdata(cfg,eye_adc_shift);
-  
-  if max(eye_adc_shift.time{1}-raw_cue.time{1})<2*eps
-    eye_adc_shift.time=raw_cue.time;
-  else
-    error('something gone wrong with data alignment')
-  end
-  
-  clear raw_hpf
-  %     clear eyechan eye_cue_orig
-  
-  cfg=[];
-  cfg.gradient='G3BR';
-  raw_cue3=ft_denoise_synthetic(cfg, raw_cue);
+%   %% Artifact rejection
+%   megeye_cue=motcue_artifact_all(megeye_cue,ii,ff,sub,adir,visflag);
 
-  cfg=[];
-  cfg.appenddim='chan';
-  megeye_cue=ft_appenddata(cfg,raw_cue3,eye_adc_shift);
-  clear raw_cue eye_adc_shift
-  
-  %% Artifact rejection
-  visflag=0;
-  data_out=motcue_artifact_all(megeye_cue,ii,ff,sub,adir,visflag);
-
-end
+% end
 
 
   %%
@@ -97,9 +50,9 @@ end
   cfg.planarmethod     = 'sincos';
   cfg.channel          = {'MEG'};
   %   cfg.neighbours       = ft_prepare_neighbours(cfg, megeye_cue{l});
-  cfg.neighbours       = ft_prepare_neighbours(cfg, megeye_use);
+  cfg.neighbours       = ft_prepare_neighbours(cfg, megeye_br);
   %   for ff=1:length(megeye_cue)
-  megeye_cue_planar=ft_megplanar(cfg,megeye_use);
+  megeye_cue_planar=ft_megplanar(cfg,megeye_br);
   %   end
   %     raw_locue_all_planar = ft_megplanar(cfg,raw_locue_all);
   %   raw_hicue_all_planar = ft_megplanar(cfg,raw_hicue_all);
@@ -107,9 +60,9 @@ end
   %   clear megeye_cue_planar
   
   %   megeye_cuee_all=ft_appenddata([],megeye_cue{:});
-  clear megeye_cue megeye_use
+  clear megeye_cue megeye_use megeye_br
   
-  error('fix me: check if this mapping of cue value is correct');
+%   error('fix me: check if this mapping of cue value is correct');
   cfg=[];
 %   cfg.trials=megeye_cue_planar.trialinfo==sub_locue(ii);
   cfg.trials=megeye_cue_planar.trialinfo==21;
@@ -170,11 +123,6 @@ if plotflag
   legend({'High cue' 'Low cue'})
   %   figure;plot(freq_locue.time,[squeeze(mean(mean(freq_hicue.powspctrm(chanuse,3:5,:),1),2)) squeeze(mean(mean(freq_locue.powspctrm(chanuse,3:5,:),1),2))])
   
-  
-  % Hypothesis:
-  % hicue -> integrate -> low visual alpha power
-  % locue -> aud only -> high visual alpha power
-  % locue - hicue -> + visual alpha power
   
   % cfg=[];
   % cfg.layout='elec1010.lay';
@@ -261,8 +209,11 @@ return
 
 %% Summary over group
 clearvars -except *dir sub
-
-
+  % Hypothesis:
+  % hicue -> integrate -> low visual alpha power
+  % locue -> aud only -> high visual alpha power
+  % locue - hicue -> + visual alpha power
+  
 subcnt=0;
 for ii=3:length(sub)
   subcnt=subcnt+1;
@@ -275,35 +226,59 @@ for ii=3:length(sub)
   cfg.parameter='powspctrm';
   cfg.operation='x1/x2 - 1';
   freq_diff_each{subcnt}=ft_math(cfg,freq_locue_each_avg{subcnt},freq_hicue_each_avg{subcnt});
+  cfg.parameter='powspctrm';
+  cfg.operation='add';
+  freq_sum_each{subcnt}=ft_math(cfg,freq_locue_each_avg{subcnt},freq_hicue_each_avg{subcnt});
 end
 
+% go through each subject;
+for ii=1:length(freq_diff_each)
+  figure;
+  cfg=[];
+  cfg.layout='CTF275.lay';
+  cfg.zlim='maxabs';
+  ft_multiplotTFR(cfg,freq_diff_each{ii})
+  keyboard
+end
+
+%% 
+subjkeep=setdiff(1:length(freq_diff_each),[1 13 16])
+
 cfg=[];
-grave_freqdiff=ft_freqgrandaverage(cfg,freq_diff_each{:});
+grave_freqdiff=ft_freqgrandaverage(cfg,freq_diff_each{subjkeep});
+grave_freqsum=ft_freqgrandaverage(cfg,freq_sum_each{subjkeep});
 cfg=[];
 cfg.keepindividual='yes';
-grind_freqdiff=ft_freqgrandaverage(cfg,freq_diff_each{:});
-grind_freq_locue=ft_freqgrandaverage(cfg,freq_locue_each_avg{:});
-grind_freq_hicue=ft_freqgrandaverage(cfg,freq_hicue_each_avg{:});
+grind_freqdiff=ft_freqgrandaverage(cfg,freq_diff_each{subjkeep});
+grind_freq_locue=ft_freqgrandaverage(cfg,freq_locue_each_avg{subjkeep});
+grind_freq_hicue=ft_freqgrandaverage(cfg,freq_hicue_each_avg{subjkeep});
 
-% redo tftimwin; baseline relchange prior to grandaverage?
 
 figure;
 cfg=[];
 cfg.layout='CTF275.lay';
 cfg.zlim='maxabs';
 ft_multiplotTFR(cfg,grave_freqdiff)
+figure;
+cfg=[];
+cfg.layout='CTF275.lay';
+cfg.baseline=[-.3 .4];
+ft_multiplotTFR(cfg,grave_freqsum)
+
+
+% redo tftimwin; baseline relchange prior to grandaverage?
 
 load ctf275_neighb.mat
 
 cfg=[];
-cfg.latency=[.5 1];
+cfg.latency=[.6 1.3];
 cfg.freq=[8 12];
 cfg.avgovertime='yes';
 cfg.avgoverfreq='yes';
 cfg.method='montecarlo';
 cfg.correcttail='alpha';
-cfg.design(1,:)=[1:21 1:21];
-cfg.design(2,:)=[ones(1,21) 2*ones(1,21)];
+cfg.design(1,:)=[1:length(subjkeep) 1:length(subjkeep)];
+cfg.design(2,:)=[ones(1,length(subjkeep)) 2*ones(1,length(subjkeep))];
 cfg.uvar=1;
 cfg.ivar=2;
 cfg.statistic='depsamplesT';
@@ -313,8 +288,8 @@ cfg.neighbours=neighbours;
 stat=ft_freqstatistics(cfg,grind_freq_locue, grind_freq_hicue);
 
 cfg=[];
-cfg.latency=[.5 1];
-cfg.frequency=[8 12];
+cfg.latency=stat.cfg.latency;
+cfg.frequency=stat.cfg.freq;
 cfg.avgoverfreq='yes';
 cfg.avgovertime='yes';
 grave_plot=ft_selectdata(cfg,grave_freqdiff)
@@ -326,6 +301,6 @@ cfg.parameter='powspctrm';
 % cfg.maskparameter='mask';
 cfg.layout='CTF275.lay';
 cfg.highlight='on';
-cfg.highlightchannel=stat.label(stat.prob<.08);
+cfg.highlightchannel=stat.label(stat.prob<.05);
 ft_topoplotTFR(cfg,grave_plot);
 
