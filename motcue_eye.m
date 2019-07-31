@@ -43,8 +43,8 @@ zvalue_cutoff=[nan 1.5 1.5 1.2 1.5   1.5 1.5 1.5 1.5 1.5   1.5 1.5 1.5 1.5 1.5  
 subuse=2:23;
 
 %%
-% for ii=subuse
-for ii=10:23
+for ii=subuse
+% for ii=22
   
   datanames=dir([mdir sub{ii} '/*.ds']);
   filenames_eye=dir([edir sub{ii} '*asc']);
@@ -152,11 +152,17 @@ for ii=10:23
     %     cfg.preproc.demean='yes';
     %     cfg.artfctdef.blink.artifact=artfct_blinkz.artifact;
     %     ft_databrowser(cfg,eyeadc_blinkrm);
+%         cfg=[];
+%         cfg.viewmode='vertical';
+%         cfg.preproc.demean='yes';
+%         cfg.artfctdef.blink.artifact=artfct_blinkz.artifact;
+%         ft_databrowser(cfg,megeye_cue);
     % end
     
     % eyelink data doesn't exist for all runs
     hasEL=0;
-    if loadEL && ~isempty( intersect(avcuedata{ii}(ff), avcuedata{ii}(find(dataasc{ii}))))
+    
+    if loadEL && ~isempty( intersect(avcuedata{ii}(ff), avcuedata{ii}(find(dataasc{ii})))) && ~[ii==10 && ff==4] && ~[ii==12 && ff==4]
       hasEL=1;
       
       cfg=[];
@@ -192,7 +198,7 @@ for ii=10:23
       cfg=ft_definetrial(cfg);
       data_eye2=ft_preprocessing(cfg);
       
-      if ii==7 && ff==7 % for some reason, EL recorded one more trial after rest and MEG didn't
+      if [ii==7 && ff==7] || [ii==15 && ff==7] || [ii==21 && ff==7] || [ii==22 && ff==6] % for some reason, EL recorded one more trial after rest and MEG didn't
         cfg=[];
         cfg.trials=1:60;
         data_eye2=ft_selectdata(cfg,data_eye2);
@@ -294,7 +300,6 @@ for ii=10:23
         cfg = ft_databrowser(cfg,megeye_cue_all);
         keyboard
       end
-      
       
     else
       
